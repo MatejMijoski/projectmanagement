@@ -3,14 +3,14 @@ from django.urls import path
 from ProjectManagementApp import views
 
 urlpatterns = [
-    path("client/", views.ClientListCreateView.as_view()),
-    path("client/<str:id>", views.ClientRetrieveView.as_view()),
+    path("clients/", views.ClientListCreateView.as_view()),
+    path("clients/<str:id>", views.ClientRetrieveView.as_view()),
 
-    path("client/<str:client_id>/timeline/", views.TimelineItemListCreateView.as_view()),
-    path("client/timeline/<str:id>", views.TimelineItemRetrieveView.as_view()),
+    path("clients/<str:client_id>/timeline/", views.TimelineItemListCreateView.as_view()),
+    path("clients/timeline/<str:id>", views.TimelineItemRetrieveView.as_view()),
 
-    path("project/", views.ProjectListCreateView.as_view()),
-    path("project/<str:id>", views.ProjectRetrieveView.as_view()),
+    path("projects/", views.ProjectListCreateView.as_view()),
+    path("projects/<str:id>", views.ProjectRetrieveView.as_view()),
 
     path("<str:project_id>/post/", views.ProjectPostsListCreateView.as_view()),
     path("<str:project_id>/post/<str:id>", views.ProjectPostsRetrieveView.as_view()),

@@ -51,7 +51,10 @@ class ClientCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['owner'] = self.context.get('request').user
         address = validated_data.pop('address') if validated_data.get('address') else None
-        new_client = super(ClientCreateSerializer, self).create(validated_data)
+        try:
+            new_client = super(ClientCreateSerializer, self).create(validated_data)
+        except IntegrityError:
+            raise CustomException(400, "A client with the specified email already exists.")
         if address:
             ClientAddress.objects.create(**address, client=new_client)
         else:
@@ -195,14 +198,31 @@ class InvoiceListSerializer(serializers.ModelSerializer):
         fields = ("id", "client", "due_date", "number", "total", "is_paid", "project", 'created_at')
 
 
+class ClientInvoiceSerializer(serializers.ModelSerializer):
+    address = ClientAddressSerializer(source='client_address', required=False)
+
+    class Meta:
+        model = Client
+        fields = ('id', 'name', 'email', 'phone', 'address', 'address')
+
+
+class ProjectInvoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ('id', 'name',)
+
+
 class InvoicePostSerializer(serializers.ModelSerializer):
     owner = UserSerializer(read_only=True)
-    client = ClientRetrieveUpdateSerializer(read_only=True)
+    client = ClientInvoiceSerializer(read_only=True)
+    project = ProjectInvoiceSerializer(read_only=True)
 
     class Meta:
         model = Invoice
-        fields = ("id", 'owner', "client", "due_date", "items", "note", "number", "terms", "total", "is_paid", "project",
-                  'created_at')
+        fields = (
+            "id", 'owner', 'name_surname', 'email', 'address', 'company_name', 'phone', "client", "due_date", "items",
+            "note", "number", "terms", "total", "is_paid", "project",
+            'created_at')
 
     def run_validation(self, data=empty):
         try:
@@ -220,13 +240,6 @@ class InvoicePostSerializer(serializers.ModelSerializer):
         validated_data["owner"] = self.context.get('request').user
         return super(InvoicePostSerializer, self).create(validated_data)
 
-    def to_representation(self, instance):
-        serializer = super(InvoicePostSerializer, self).to_representation(instance)
-        project = dict()
-        project['name'] = instance.project.name
-        project['description'] = instance.project.description
-        serializer['project'] = project
-        return serializer
 
 class ResumeSerializer(serializers.ModelSerializer):
     class Meta:

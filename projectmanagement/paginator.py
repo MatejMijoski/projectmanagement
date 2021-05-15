@@ -10,6 +10,11 @@ class NotFoundError(object):
 class CustomPaginator(PageNumberPagination):
     page_size = 10  # Number of objects to return in one page
 
+    def paginate_queryset(self, queryset, request, view=None):
+        if 'page' in queryset:
+            return super().paginate_queryset(queryset, request, view=None)
+        return None
+
     def generate_response(self, query_set, serializer_obj, request):
         try:
             page_data = self.paginate_queryset(query_set, request)

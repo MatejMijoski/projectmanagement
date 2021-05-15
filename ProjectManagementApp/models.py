@@ -120,6 +120,11 @@ class Invoice(models.Model):
         default=uuid.uuid4, editable=False, unique=True, verbose_name="Invoice ID", primary_key=True
     )
     owner = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name="Owner")
+    name_surname = models.CharField(max_length=100, verbose_name="Name and Surname")
+    email = models.CharField(max_length=100, verbose_name='Email')
+    address = models.CharField(max_length=100, blank=True, verbose_name="Address")
+    company_name = models.CharField(max_length=100, blank=True, verbose_name="Company Name")
+    phone = models.CharField(max_length=100, blank=True, verbose_name="Phone")
     client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, verbose_name="Client")
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, verbose_name="Project")
     number = models.IntegerField(default=1, verbose_name="Invoice Number")
