@@ -12,8 +12,9 @@ class Client(models.Model):
     )
     owner = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name="Client Owner")
     name = models.CharField(max_length=200, blank=False, verbose_name="Client Name")
-    email = models.EmailField(null=True, verbose_name="Client Email")
+    email = models.EmailField(verbose_name="Client Email")
     phone = models.CharField(max_length=30, blank=True, verbose_name="Client Phone")
+    address = models.CharField(max_length=200, blank=True, verbose_name="Client Address")
     company = models.CharField(max_length=150, blank=True, verbose_name='Client Company')
     created_at = models.DateTimeField(auto_now=True)
 
@@ -21,23 +22,6 @@ class Client(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['owner', 'email'], name='Client Constraint'),
         ]
-
-
-class ClientAddress(models.Model):
-    objects: models.Manager
-    id = models.UUIDField(
-        default=uuid.uuid4, editable=False, unique=True, verbose_name="Client Address ID", primary_key=True
-    )
-    country = models.CharField(max_length=150, blank=True, verbose_name="Country")
-    state = models.CharField(max_length=80, verbose_name="State", blank=True)
-    city = models.CharField(max_length=80, blank=True, verbose_name="City")
-    zip_code = models.CharField(max_length=30, blank=True, verbose_name="Zip Code")
-    client = models.OneToOneField(
-        Client,
-        on_delete=models.CASCADE,
-        verbose_name="Client",
-        related_name="client_address",
-    )
 
 
 class Project(models.Model):
@@ -62,7 +46,7 @@ class Project(models.Model):
         ]
 
 
-class ProjectInvites(models.Model):
+class ProjectInvite(models.Model):
     objects: models.Manager
     id = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name="Invite ID", primary_key=True

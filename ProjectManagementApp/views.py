@@ -51,7 +51,7 @@ class ClientRetrieveView(RetrieveUpdateDestroyAPIView):
         try:
             return Client.objects.get(owner=self.request.user, id=self.kwargs['id'])
         except Client.DoesNotExist:
-            raise CustomException(404, "The project does not exist.")
+            raise CustomException(404, "The client does not exist.")
         except ValidationError:
             raise CustomException(400, "The UUID is not correct.")
 

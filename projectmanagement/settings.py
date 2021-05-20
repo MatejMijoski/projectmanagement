@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = ["127.0.0.1", 'localhost', '2dab1df585e3.ngrok.io']
-
+SITE_URL = 'http://127.0.0.1/'
 # Application definition
 
 AUTH_USER_MODEL = 'AuthenticationApp.Account'
@@ -120,7 +120,6 @@ CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:3000',
     'http://127.0.0.1:3001',
     'http://localhost:3000'
-
 )
 
 # DRF Settings

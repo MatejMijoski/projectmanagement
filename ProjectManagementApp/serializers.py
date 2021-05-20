@@ -7,21 +7,15 @@ from AuthenticationApp.serializers import UserSerializer
 from FilesApp.serializers import FileSerializer
 from FilesApp.services import project_file_size
 from ProjectManagementApp.models import Client, Project, ProjectPosts, Invoice, Resume, \
-    TimelineItemClient, ClientAddress, PostComments, ProjectInvites
+    TimelineItemClient, PostComments, ProjectInvite
 from ProjectManagementApp.services import send_invite_project
 from projectmanagement.exceptions import CustomException
-
-
-class ClientAddressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ClientAddress
-        fields = ('id', 'country', 'state', 'city', 'zip_code')
 
 
 class ClientListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
-        fields = ('id', 'name', 'email', 'created_at')
+        fields = ('id', 'name', 'email', 'address', 'phone', 'created_at')
 
 
 class ProjectListSerializer(serializers.ModelSerializer):
@@ -31,48 +25,36 @@ class ProjectListSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         serializer = super(ProjectListSerializer, self).to_representation(instance)
-        if self.context.get('request').user == instance.owner:
+        if self.context.get('request') and self.context.get('request').user == instance.owner:
             serializer['owner'] = True
             return serializer
-            # Else if the user is a client of the project, return only necessary information
-        elif self.context.get('request').user in instance.users.all():
-            serializer['owner'] = False
-            del serializer['budget']
-            return serializer
+        serializer['owner'] = False
+        del serializer['budget']
+        return serializer
 
 
 class ClientCreateSerializer(serializers.ModelSerializer):
-    address = ClientAddressSerializer(required=False)
-
     class Meta:
         model = Client
         fields = ('id', 'name', 'email', 'phone', 'address', 'company', 'created_at')
 
     def create(self, validated_data):
         validated_data['owner'] = self.context.get('request').user
-        address = validated_data.pop('address') if validated_data.get('address') else None
         try:
-            new_client = super(ClientCreateSerializer, self).create(validated_data)
+            return super(ClientCreateSerializer, self).create(validated_data)
         except IntegrityError:
             raise CustomException(400, "A client with the specified email already exists.")
-        if address:
-            ClientAddress.objects.create(**address, client=new_client)
-        else:
-            ClientAddress.objects.create(client=new_client)
-        return new_client
 
     def to_representation(self, instance):
         serializer = super(ClientCreateSerializer, self).to_representation(instance)
-        if hasattr(instance, 'client_address'):
-            serializer['address'] = ClientAddressSerializer(instance.client_address).data
         if self.context.get('request').user.project_owner.all():
             serializer['projects'] = ProjectListSerializer(self.context.get('request').user.project_owner.all(),
-                                                           many=True).data
+                                                           many=True,
+                                                           context={'request': self.context.get('request')}).data
         return serializer
 
 
 class ClientRetrieveUpdateSerializer(serializers.ModelSerializer):
-    address = ClientAddressSerializer(source='client_address', required=False)
     projects = ProjectListSerializer(source='client_projects', many=True, required=False)
 
     class Meta:
@@ -80,20 +62,15 @@ class ClientRetrieveUpdateSerializer(serializers.ModelSerializer):
         fields = ('name', 'email', 'phone', 'address', 'company', 'projects', 'created_at')
 
     def update(self, instance, validated_data):
-        if validated_data.get('client_address'):
-            serializer = ClientAddressSerializer(instance.client_address, validated_data.pop('client_address'))
-            if serializer.is_valid():
-                serializer.save()
-        return super(ClientRetrieveUpdateSerializer, self).update(instance, validated_data)
-
-    def to_representation(self, instance):
-        serializer = super(ClientRetrieveUpdateSerializer, self).to_representation(instance)
-        return serializer
+        try:
+            return super(ClientRetrieveUpdateSerializer, self).update(instance, validated_data)
+        except IntegrityError:
+            raise CustomException(400, "A client with the specified email already exists.")
 
 
 class ProjectInviteSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ProjectInvites
+        model = ProjectInvite
         fields = ('email', 'expire_at', 'created_at')
 
 
@@ -110,7 +87,7 @@ class ProjectRetrieveSerializer(serializers.ModelSerializer):
         project_files = instance.project_files.all()
         serializer['files'] = FileSerializer(project_files, many=True).data
         serializer['files_size'] = project_file_size(project_files)
-        # If object is retrieve by owner, send all information
+        # If object is retrieved by owner, send all information
         if self.context.get('request').user == instance.owner:
             serializer['owner'] = True
             return serializer
@@ -139,13 +116,16 @@ class ProjectCreateUpdateSerializer(serializers.ModelSerializer):
         if 'users' in validated_data:
             emails = validated_data.pop('users')
             # Notify users that have been added to the project
-        instance = super(ProjectCreateUpdateSerializer, self).create(validated_data)
-        if clients:
-            instance.clients.add(*clients)
-        if emails:
-            send_invite_project(emails, instance, self.context.get('request').user)
-        instance.save()
-        return instance
+        try:
+            instance = super(ProjectCreateUpdateSerializer, self).create(validated_data)
+            if clients:
+                instance.clients.add(*clients)
+            if emails:
+                send_invite_project(emails, instance, self.context.get('request').user)
+            instance.save()
+            return instance
+        except IntegrityError:
+            raise CustomException(400, "A project with the specified name already exists.")
 
     def update(self, instance, validated_data):
         clients = None
@@ -155,12 +135,15 @@ class ProjectCreateUpdateSerializer(serializers.ModelSerializer):
         # Notify users that have been added to the project
         if 'users' in validated_data:
             send_invite_project(validated_data.pop('users'), instance, self.context.get('request').user)
-        instance = super(ProjectCreateUpdateSerializer, self).update(instance, validated_data)
-        instance.clients.clear()
-        if clients:
-            instance.clients.add(*clients)
-        instance.save()
-        return instance
+        try:
+            instance = super(ProjectCreateUpdateSerializer, self).update(instance, validated_data)
+            instance.clients.clear()
+            if clients:
+                instance.clients.add(*clients)
+            instance.save()
+            return instance
+        except IntegrityError:
+            raise CustomException(400, "A project with the specified name already exists.")
 
     # TODO There might be a need for the user to delete i.e. cancel invites
     def to_representation(self, instance):
@@ -168,7 +151,7 @@ class ProjectCreateUpdateSerializer(serializers.ModelSerializer):
         serializer['owner'] = True
         serializer['users'] = UserSerializer(instance.users, many=True).data
         serializer['clients'] = ClientListSerializer(instance.clients, many=True).data
-        serializer['invites'] = ProjectInviteSerializer(ProjectInvites.objects.filter(project=instance), many=True).data
+        serializer['invites'] = ProjectInviteSerializer(ProjectInvite.objects.filter(project=instance), many=True).data
         return serializer
 
 
@@ -199,8 +182,6 @@ class InvoiceListSerializer(serializers.ModelSerializer):
 
 
 class ClientInvoiceSerializer(serializers.ModelSerializer):
-    address = ClientAddressSerializer(source='client_address', required=False)
-
     class Meta:
         model = Client
         fields = ('id', 'name', 'email', 'phone', 'address', 'address')
