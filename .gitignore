@@ -141,3 +141,5 @@ cython_debug/
 .idea/
 
 projectmanagement/.env
+htmlcov/
+.coverage

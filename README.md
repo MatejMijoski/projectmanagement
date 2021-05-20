@@ -1,4 +1,3 @@
 # Project Management Application
-
-Manage your projects, clients and leads.
+[![CircleCI](https://circleci.com/gh/MatejMijoski/projectmanagement.svg?style=svg)](#)  
 

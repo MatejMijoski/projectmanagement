@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
 from pathlib import Path
+
+import dj_database_url
 from dotenv import load_dotenv
+
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,10 +28,10 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", 'localhost', '2dab1df585e3.ngrok.io']
+ALLOWED_HOSTS = ["127.0.0.1", 'localhost']
 SITE_URL = 'http://127.0.0.1/'
-# Application definition
 
+# Application definition
 AUTH_USER_MODEL = 'AuthenticationApp.Account'
 
 INSTALLED_APPS = [
@@ -118,7 +121,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001',
     'http://localhost:3000'
 )
 
@@ -171,13 +173,15 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': "django.db.backends.postgresql",
-        'NAME': "projectmgmt",
-        'USER': "postgres",
-        'PASSWORD': os.environ.get('POSTGRESQL_PASSWORD'),
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': 'postgres',
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
         'HOST': "127.0.0.1",
         'PORT': "5433",
     }
 }
+
+DATABASES['default'].update(dj_database_url.config(conn_max_age=500))
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -209,6 +213,11 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+# Heroku: Update database configuration from $DATABASE_URL.
+# import dj_database_url
+# db_from_env = dj_database_url.config(conn_max_age=500)
+# DATABASES['default'].update(db_from_env)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
