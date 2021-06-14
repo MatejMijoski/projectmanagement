@@ -140,6 +140,7 @@ cython_debug/
 # Pycharm
 .idea/
 
+static/
 projectmanagement/.env
 htmlcov/
 .coverage

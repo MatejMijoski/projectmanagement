@@ -12,11 +12,11 @@ class Client(models.Model):
     )
     owner = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name="Client Owner")
     name = models.CharField(max_length=200, blank=False, verbose_name="Client Name")
-    email = models.EmailField(verbose_name="Client Email")
+    email = models.EmailField(blank=False, verbose_name="Client Email")
     phone = models.CharField(max_length=30, blank=True, verbose_name="Client Phone")
     address = models.CharField(max_length=200, blank=True, verbose_name="Client Address")
     company = models.CharField(max_length=150, blank=True, verbose_name='Client Company')
-    created_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now=True, verbose_name="Created At")
 
     class Meta:
         constraints = [
@@ -34,11 +34,11 @@ class Project(models.Model):
     users = models.ManyToManyField(Account, null=True, related_name='project_clients', verbose_name='Project Users')
     name = models.CharField(max_length=100, blank=False, verbose_name='Project Name')
     description = models.CharField(max_length=1000, blank=True, verbose_name='Project Description')
-    clients = models.ManyToManyField(Client, null=True, related_name='client_projects', verbose_name='Project Clients')
+    clients = models.ManyToManyField(Client, related_name='client_projects', null=True, verbose_name='Project Clients')
     time = models.IntegerField(null=True, verbose_name='Project Time')
     budget = models.IntegerField(default=0, verbose_name='Project Budget')
-    created_at = models.DateTimeField(auto_now=True, verbose_name='Created At')
     due_date = models.DateTimeField(null=True, verbose_name='Project Due Date')
+    created_at = models.DateTimeField(auto_now=True, verbose_name='Created At')
 
     class Meta:
         constraints = [
@@ -103,22 +103,22 @@ class Invoice(models.Model):
     id = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, verbose_name="Invoice ID", primary_key=True
     )
-    owner = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name="Owner")
-    name_surname = models.CharField(max_length=100, verbose_name="Name and Surname")
-    email = models.CharField(max_length=100, verbose_name='Email')
+    owner = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='invoices', verbose_name="Owner")
+    name_surname = models.CharField(max_length=100, blank=False, verbose_name="Name and Surname")
+    email = models.CharField(max_length=100, blank=False, verbose_name='Email')
     address = models.CharField(max_length=100, blank=True, verbose_name="Address")
     company_name = models.CharField(max_length=100, blank=True, verbose_name="Company Name")
     phone = models.CharField(max_length=100, blank=True, verbose_name="Phone")
-    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, verbose_name="Client")
-    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, verbose_name="Project")
-    number = models.IntegerField(default=1, verbose_name="Invoice Number")
-    due_date = models.DateTimeField(null=True, verbose_name="Due Date")
-    items = JSONField(verbose_name="Invoice Items")
-    total = models.FloatField(verbose_name="Invoice Total")
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL,  related_name='client_invoices', null=True, verbose_name="Client",)
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, related_name="project_invoices", null=True, verbose_name="Project")
+    number = models.IntegerField(default=1, blank=True, verbose_name="Invoice Number")
+    due_date = models.DateTimeField(null=True, blank=True, verbose_name="Due Date")
+    items = JSONField(blank=False, verbose_name="Invoice Items")
+    total = models.FloatField(default=0, blank=True, verbose_name="Invoice Total")
     is_paid = models.BooleanField(default=False, verbose_name="Is Invoice Paid")
-    note = models.TextField(default="", verbose_name="Invoice Note")
-    terms = models.TextField(default="", verbose_name="Invoice Terms")
-    created_at = models.DateTimeField(auto_now=True, verbose_name="Created At")
+    note = models.TextField(default="", blank=True, verbose_name="Invoice Note")
+    terms = models.TextField(default="", blank=True, verbose_name="Invoice Terms")
+    created_at = models.DateTimeField(auto_now=True, blank=True, verbose_name="Created At")
 
 
 class Resume(models.Model):

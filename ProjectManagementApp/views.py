@@ -7,13 +7,13 @@ from rest_framework import status
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView, CreateAPIView
 from rest_framework.views import APIView
 from projectmanagement.exceptions import CustomException
-from .filters import InvoiceFilter
+from .filters import InvoiceFilter, ClientFilter
 from .models import Client, Project, Invoice, Resume, TimelineItemClient, ProjectPosts, PostComments
 from projectmanagement.paginator import CustomPaginator
-from .serializers import ResumeSerializer, InvoicePostSerializer, TimelineItemClientSerializer, \
+from .serializers import ResumeSerializer, TimelineItemClientSerializer, \
     ClientRetrieveUpdateSerializer, ClientListSerializer, ClientCreateSerializer, ProjectListSerializer, \
     ProjectRetrieveSerializer, ProjectCreateUpdateSerializer, ProjectPostSerializer, PostCommentSerializer, \
-    InvoiceListSerializer
+    InvoiceSerializer, InvoiceCreateUpdateSerializer
 from .services import accept_project_invite
 from django_filters import rest_framework as filters
 
@@ -27,6 +27,7 @@ class ClientListCreateView(ListCreateAPIView):
     @permissions - Only the owner can do CRUD operations
     """
     pagination_class = CustomPaginator
+    filter_class = ClientFilter
 
     def get_queryset(self):
         return Client.objects.filter(owner=self.request.user)
@@ -213,21 +214,26 @@ class InvoiceListCreateView(ListCreateAPIView):
     """
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = InvoiceFilter
+    pagination_class = CustomPaginator
+    serializer_class = InvoiceSerializer
 
     def get_serializer_class(self):
-        if self.request.method == "GET":
-            return InvoiceListSerializer
-        else:
-            return InvoicePostSerializer
+        if(self.request.method == 'POST'):
+            return InvoiceCreateSerializer
+        return InvoiceSerializer
 
     def get_queryset(self):
         return Invoice.objects.filter(owner=self.request.user)
 
 
 class InvoiceRetrieveView(RetrieveUpdateDestroyAPIView):
-    serializer_class = InvoicePostSerializer
     pagination_class = CustomPaginator
     lookup_field = 'id'
+
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return InvoiceCreateUpdateSerializer
+        return InvoiceSerializer
 
     def get_object(self):
         try:

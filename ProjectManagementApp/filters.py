@@ -1,13 +1,20 @@
 from django_filters import rest_framework as filters
 
-from ProjectManagementApp.models import Invoice
+from ProjectManagementApp.models import Invoice, Client
+
+
+class ClientFilter(filters.FilterSet):
+    email = filters.CharFilter(field_name='email', lookup_expr='icontains')
+
+    class Meta:
+        model = Client
+        fields = ('email',)
 
 
 class InvoiceFilter(filters.FilterSet):
-    project = filters.CharFilter(field_name='project', lookup_expr='exact')
-    client = filters.CharFilter(field_name='client', lookup_expr='exact')
+    status = filters.BooleanFilter(field_name='is_paid', lookup_expr='exact')
+    client = filters.CharFilter(field_name='client__name', lookup_expr='icontains')
 
     class Meta:
         model = Invoice
-        fields = ('project', 'client')
-
+        fields = ('status', 'client')

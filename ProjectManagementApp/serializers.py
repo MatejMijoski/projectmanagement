@@ -13,24 +13,37 @@ from projectmanagement.exceptions import CustomException
 
 
 class ClientListSerializer(serializers.ModelSerializer):
+    projects_no = serializers.SerializerMethodField()
+    invoices_no = serializers.SerializerMethodField()
+
     class Meta:
         model = Client
-        fields = ('id', 'name', 'email', 'address', 'phone', 'created_at')
+        fields = ('id', 'name', 'email', 'address', 'phone', 'created_at', 'projects_no', 'invoices_no')
+
+    def get_projects_no(self, obj):
+        return Project.objects.filter(clients=obj).count()
+
+    def get_invoices_no(self, obj):
+        return Invoice.objects.filter(client=obj).count()
 
 
 class ProjectListSerializer(serializers.ModelSerializer):
+    clients = ClientListSerializer(many=True)
+    users = UserSerializer(many=True)
+    owner = UserSerializer()
+
     class Meta:
         model = Project
-        fields = ('id', 'name', 'description', 'budget', 'due_date')
+        fields = ('id', 'name', 'clients', 'users', 'owner', 'description', 'budget', 'due_date')
 
-    def to_representation(self, instance):
-        serializer = super(ProjectListSerializer, self).to_representation(instance)
-        if self.context.get('request') and self.context.get('request').user == instance.owner:
-            serializer['owner'] = True
-            return serializer
-        serializer['owner'] = False
-        del serializer['budget']
-        return serializer
+    # def to_representation(self, instance):
+    #     serializer = super(ProjectListSerializer, self).to_representation(instance)
+    #     if self.context.get('request') and self.context.get('request').user == instance.owner:
+    #         serializer['owner'] = True
+    #         return serializer
+    #     serializer['owner'] = False
+    #     del serializer['budget']
+    #     return serializer
 
 
 class ClientCreateSerializer(serializers.ModelSerializer):
@@ -59,7 +72,7 @@ class ClientRetrieveUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Client
-        fields = ('name', 'email', 'phone', 'address', 'company', 'projects', 'created_at')
+        fields = ('id', 'name', 'email', 'phone', 'address', 'company', 'projects', 'created_at')
 
     def update(self, instance, validated_data):
         try:
@@ -172,54 +185,48 @@ class ProjectPostSerializer(serializers.ModelSerializer):
         fields = ('id', 'owner', 'content', 'type', 'created_at', 'comments')
 
 
-class InvoiceListSerializer(serializers.ModelSerializer):
-    client = serializers.CharField(source='client.email')
-    project = serializers.CharField(source='project.name')
-
+class ProjectInvoiceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Invoice
-        fields = ("id", "client", "due_date", "number", "total", "is_paid", "project", 'created_at')
+        model = Project
+        fields = ('id', 'name')
 
 
 class ClientInvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
-        fields = ('id', 'name', 'email', 'phone', 'address', 'address')
+        fields = ('id', 'name', 'email')
 
 
-class ProjectInvoiceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Project
-        fields = ('id', 'name',)
-
-
-class InvoicePostSerializer(serializers.ModelSerializer):
-    owner = UserSerializer(read_only=True)
+class InvoiceSerializer(serializers.ModelSerializer):
     client = ClientInvoiceSerializer(read_only=True)
     project = ProjectInvoiceSerializer(read_only=True)
 
     class Meta:
         model = Invoice
-        fields = (
-            "id", 'owner', 'name_surname', 'email', 'address', 'company_name', 'phone', "client", "due_date", "items",
-            "note", "number", "terms", "total", "is_paid", "project",
-            'created_at')
+        fields = ("id", 'name_surname', 'email', 'address', 'company_name', 'phone', "due_date", "items", "client",
+                  "project", "note", "number", "terms", "total", "is_paid", 'created_at')
 
-    def run_validation(self, data=empty):
-        try:
-            if 'project' in data:
-                Project.objects.get(owner=self.context.get('request').user, id=data['project'])
-            if 'client' in data:
-                Client.objects.get(owner=self.context.get('request').user, id=data['client'])
-            return super(InvoicePostSerializer, self).run_validation(data)
-        except (Project.DoesNotExist, Client.DoesNotExist):
-            raise CustomException(400, "The client or project does not exist.")
-        except ValidationError:
-            raise CustomException(400, 'The data can not be validated.')
+
+class InvoiceCreateUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Invoice
+        fields = ("id", 'name_surname', 'email', 'address', 'company_name', 'phone', "due_date", "items", "client",
+                  "project", "note", "number", "terms", "total", "is_paid", 'created_at')
 
     def create(self, validated_data):
         validated_data["owner"] = self.context.get('request').user
-        return super(InvoicePostSerializer, self).create(validated_data)
+        try:
+            return super(InvoiceCreateUpdateSerializer, self).create(validated_data)
+        except (Project.DoesNotExist, Client.DoesNotExist):
+            raise CustomException(400, "The client or project does not exist.")
+
+    def to_representation(self, instance):
+        serializer = super(InvoiceCreateUpdateSerializer, self).to_representation(instance)
+        if instance.client:
+            serializer['client'] = ClientInvoiceSerializer(instance.client).data
+        if instance.project:
+            serializer['project'] = ProjectInvoiceSerializer(instance.project).data
+        return serializer
 
 
 class ResumeSerializer(serializers.ModelSerializer):
@@ -241,7 +248,7 @@ class TimelineItemClientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TimelineItemClient
-        fields = ('id', 'owner', 'importance', 'title', 'description', 'date', 'created_at')
+        fields = ('id', 'owner', 'importance', 'client', 'title', 'description', 'date', 'created_at')
 
     def create(self, validated_data):
         validated_data['owner'] = self.context.get('request').user

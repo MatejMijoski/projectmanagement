@@ -12,16 +12,16 @@ urlpatterns = [
     path("projects/", views.ProjectListCreateView.as_view()),
     path("projects/<str:id>", views.ProjectRetrieveView.as_view()),
 
-    path("<str:project_id>/post/", views.ProjectPostsListCreateView.as_view()),
-    path("<str:project_id>/post/<str:id>", views.ProjectPostsRetrieveView.as_view()),
+    path("projects/<str:project_id>/posts/", views.ProjectPostsListCreateView.as_view()),
+    path("projects/<str:project_id>/posts/<str:id>", views.ProjectPostsRetrieveView.as_view()),
 
-    path("invite/<str:id>", views.ProjectInviteView.as_view()),
+    path("invites/<str:id>", views.ProjectInviteView.as_view()),
 
-    path("<str:post_id>/comment/", views.PostCommentListCreateView.as_view()),
-    path("<str:post_id>/comment/<str:id>", views.PostCommentsRetrieveView.as_view()),
+    path("posts/<str:post_id>/comments/", views.PostCommentListCreateView.as_view()),
+    path("posts/<str:post_id>/comments/<str:id>", views.PostCommentsRetrieveView.as_view()),
 
-    path('invoice/', views.InvoiceListCreateView.as_view()),
-    path('invoice/<str:id>', views.InvoiceRetrieveView.as_view()),
+    path('invoices/', views.InvoiceListCreateView.as_view()),
+    path('invoices/<str:id>', views.InvoiceRetrieveView.as_view()),
 
     path('resume/', views.ResumeCreateView.as_view()),
 ]
