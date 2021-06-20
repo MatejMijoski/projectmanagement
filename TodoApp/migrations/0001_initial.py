@@ -12,23 +12,79 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('ProjectManagementApp', '0002_auto_20210508_0024'),
+        ("ProjectManagementApp", "0002_auto_20210508_0024"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ProjectTasks',
+            name="ProjectTasks",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False, unique=True, verbose_name='Resume ID')),
-                ('type', models.CharField(choices=[('NOT_STARTED', 'Not Started'), ('IN_PROGRESS', 'In Progress'), ('DONE', 'Done')], default=None, max_length=20, verbose_name='Type')),
-                ('importance', models.CharField(choices=[('HIGH', 'High'), ('MEDIUM', 'Medium'), ('LOW', 'Low')], default=None, max_length=20, verbose_name='Importance')),
-                ('title', models.TextField(verbose_name='Title')),
-                ('is_completed', models.BooleanField(default=False, verbose_name='Is Completed')),
-                ('description', models.TextField(verbose_name='Description')),
-                ('due_date', models.DateTimeField(verbose_name='Due Date')),
-                ('created_at', models.DateTimeField(auto_now=True, verbose_name='Created At')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tasks', to=settings.AUTH_USER_MODEL, verbose_name='Owner')),
-                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='project_tasks', to='ProjectManagementApp.project', verbose_name='Project')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                        verbose_name="Resume ID",
+                    ),
+                ),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[
+                            ("NOT_STARTED", "Not Started"),
+                            ("IN_PROGRESS", "In Progress"),
+                            ("DONE", "Done"),
+                        ],
+                        default=None,
+                        max_length=20,
+                        verbose_name="Type",
+                    ),
+                ),
+                (
+                    "importance",
+                    models.CharField(
+                        choices=[
+                            ("HIGH", "High"),
+                            ("MEDIUM", "Medium"),
+                            ("LOW", "Low"),
+                        ],
+                        default=None,
+                        max_length=20,
+                        verbose_name="Importance",
+                    ),
+                ),
+                ("title", models.TextField(verbose_name="Title")),
+                (
+                    "is_completed",
+                    models.BooleanField(default=False, verbose_name="Is Completed"),
+                ),
+                ("description", models.TextField(verbose_name="Description")),
+                ("due_date", models.DateTimeField(verbose_name="Due Date")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Created At"),
+                ),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tasks",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Owner",
+                    ),
+                ),
+                (
+                    "project",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="project_tasks",
+                        to="ProjectManagementApp.project",
+                        verbose_name="Project",
+                    ),
+                ),
             ],
         ),
     ]

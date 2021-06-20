@@ -22,10 +22,10 @@ from FilesApp import urls as file_urls
 from TodoApp import urls as todo_urls
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
     path("api/", include(auth_urls)),
     path("api/", include(project_management_urls)),
     path("api/", include(file_urls)),
     path("api/", include(slack_urls)),
-    path("api/", include(todo_urls))
+    path("api/", include(todo_urls)),
 ]

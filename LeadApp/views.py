@@ -18,14 +18,11 @@ class LeadListCreateView(ListCreateAPIView):
 
 class LeadRetrieveView(RetrieveUpdateDestroyAPIView):
     serializer_class = LeadSerializer
-    lookup_field = 'id'
+    lookup_field = "id"
 
     def get_object(self):
         try:
-            return Lead.objects.get(
-                owner=self.request.user,
-                id=self.kwargs['id']
-            )
+            return Lead.objects.get(owner=self.request.user, id=self.kwargs["id"])
         except Lead.DoesNotExist:
             raise CustomException(404, "The lead does not exist.")
         except ValidationError:
@@ -42,13 +39,12 @@ class TimelineItemListCreateView(ListCreateAPIView):
 
 class TimelineItemRetrieveView(RetrieveUpdateDestroyAPIView):
     serializer_class = TimelineItemLeadsSerializer
-    lookup_field = 'id'
+    lookup_field = "id"
 
     def get_object(self):
         try:
             return TimelineItemLead.objects.get(
-                owner=self.request.user,
-                id=self.kwargs['id']
+                owner=self.request.user, id=self.kwargs["id"]
             )
         except TimelineItemLead.DoesNotExist:
             raise CustomException(404, "The timeline item does not exist.")

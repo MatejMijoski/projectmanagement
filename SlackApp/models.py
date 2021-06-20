@@ -14,7 +14,9 @@ class Slack_Auth(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['user_id', 'team_id'], name='Slack Constraint'),
+            models.UniqueConstraint(
+                fields=["user_id", "team_id"], name="Slack Constraint"
+            ),
         ]
 
 
@@ -25,6 +27,7 @@ class Slack_Auth(models.Model):
 #     slack_account_channel = models.ForeignKey(Slack_Auth, on_delete=models.CASCADE)
 #     channel_id = models.CharField(max_length=150)
 #
+
 
 class WSS_Auth(models.Model):
     objects: models.Manager()

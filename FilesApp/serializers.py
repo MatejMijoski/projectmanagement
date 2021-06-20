@@ -3,11 +3,11 @@ from FilesApp.models import Files
 
 
 class FileSerializer(serializers.ModelSerializer):
-    owner = serializers.CharField(source='owner.email')
+    owner = serializers.CharField(source="owner.email")
 
     class Meta:
         model = Files
-        fields = ('id', 'name', 'owner', 'size', 'path', 'created_at')
+        fields = ("id", "name", "owner", "size", "path", "created_at")
 
 
 class FilePostSerializer(serializers.ModelSerializer):
@@ -15,4 +15,4 @@ class FilePostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Files
-        fields = ('name', 'file')
+        fields = ("name", "file")

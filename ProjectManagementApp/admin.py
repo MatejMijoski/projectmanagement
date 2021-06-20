@@ -1,6 +1,14 @@
 from django.contrib import admin
-from ProjectManagementApp.models import Project, Client, PostComments, Invoice, Resume, \
-    TimelineItemClient, ProjectPosts, ProjectInvite
+from ProjectManagementApp.models import (
+    Project,
+    Client,
+    PostComments,
+    Invoice,
+    Resume,
+    TimelineItemClient,
+    ProjectPosts,
+    ProjectInvite,
+)
 
 admin.site.register(Project)
 admin.site.register(Client)

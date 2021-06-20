@@ -18,11 +18,12 @@ import SlackApp.routing
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "projectmanagement.settings")
 django.setup()
 
-application = ProtocolTypeRouter({
-  "http": get_asgi_application(),
-   "websocket": #AuthMiddlewareStack(
-        URLRouter(
+application = ProtocolTypeRouter(
+    {
+        "http": get_asgi_application(),
+        "websocket": URLRouter(  # AuthMiddlewareStack(
             SlackApp.routing.websocket_urlpatterns,
         )
-    #),
-})
+        # ),
+    }
+)

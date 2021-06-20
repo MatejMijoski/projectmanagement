@@ -10,7 +10,7 @@ class NotFoundError(object):
 
 
 class CustomPaginator(PageNumberPagination):
-    page_size_query_param = 'limit'  # Number of objects to return in one page
+    page_size_query_param = "limit"  # Number of objects to return in one page
     page_size = 10  # Default number of objects
 
     def generate_response(self, query_set, serializer_obj, request):

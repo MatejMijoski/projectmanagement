@@ -17,129 +17,512 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Client',
+            name="Client",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False, unique=True, verbose_name='Client ID')),
-                ('name', models.CharField(max_length=200, verbose_name='Client Name')),
-                ('email', models.EmailField(max_length=254, null=True, verbose_name='Client Email')),
-                ('phone', models.CharField(blank=True, max_length=30, verbose_name='Client Phone')),
-                ('company', models.CharField(blank=True, max_length=150, verbose_name='Client Company')),
-                ('created_at', models.DateTimeField(auto_now=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Client Owner')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                        verbose_name="Client ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200, verbose_name="Client Name")),
+                (
+                    "email",
+                    models.EmailField(
+                        max_length=254, null=True, verbose_name="Client Email"
+                    ),
+                ),
+                (
+                    "phone",
+                    models.CharField(
+                        blank=True, max_length=30, verbose_name="Client Phone"
+                    ),
+                ),
+                (
+                    "company",
+                    models.CharField(
+                        blank=True, max_length=150, verbose_name="Client Company"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now=True)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Client Owner",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Project',
+            name="Project",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False, unique=True, verbose_name='Project ID')),
-                ('name', models.CharField(max_length=100, verbose_name='Project Name')),
-                ('description', models.CharField(blank=True, max_length=1000, verbose_name='Project Description')),
-                ('time', models.IntegerField(null=True, verbose_name='Project Time')),
-                ('budget', models.IntegerField(default=0, verbose_name='Project Budget')),
-                ('created_at', models.DateTimeField(auto_now=True, verbose_name='Created At')),
-                ('due_date', models.DateTimeField(null=True, verbose_name='Project Due Date')),
-                ('clients', models.ManyToManyField(null=True, related_name='client_projects', to='ProjectManagementApp.Client', verbose_name='Project Clients')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='project_owner', to=settings.AUTH_USER_MODEL, verbose_name='Project Owner')),
-                ('users', models.ManyToManyField(null=True, related_name='project_clients', to=settings.AUTH_USER_MODEL, verbose_name='Project Users')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                        verbose_name="Project ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, verbose_name="Project Name")),
+                (
+                    "description",
+                    models.CharField(
+                        blank=True, max_length=1000, verbose_name="Project Description"
+                    ),
+                ),
+                ("time", models.IntegerField(null=True, verbose_name="Project Time")),
+                (
+                    "budget",
+                    models.IntegerField(default=0, verbose_name="Project Budget"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Created At"),
+                ),
+                (
+                    "due_date",
+                    models.DateTimeField(null=True, verbose_name="Project Due Date"),
+                ),
+                (
+                    "clients",
+                    models.ManyToManyField(
+                        null=True,
+                        related_name="client_projects",
+                        to="ProjectManagementApp.Client",
+                        verbose_name="Project Clients",
+                    ),
+                ),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="project_owner",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Project Owner",
+                    ),
+                ),
+                (
+                    "users",
+                    models.ManyToManyField(
+                        null=True,
+                        related_name="project_clients",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Project Users",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='TimelineItemClient',
+            name="TimelineItemClient",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False, unique=True, verbose_name='Resume ID')),
-                ('importance', models.CharField(choices=[('HIGH', 'High'), ('MEDIUM', 'Medium'), ('LOW', 'Low')], default='LOW', max_length=20, verbose_name='Importance')),
-                ('title', models.CharField(max_length=150, verbose_name='Title')),
-                ('description', models.CharField(max_length=1000, verbose_name='Description')),
-                ('date', models.DateTimeField(verbose_name='Date')),
-                ('created_at', models.DateTimeField(auto_now=True)),
-                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='timeline_items', to='ProjectManagementApp.client', verbose_name='Clients')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='client_timeline_items', to=settings.AUTH_USER_MODEL, verbose_name='Owner')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                        verbose_name="Resume ID",
+                    ),
+                ),
+                (
+                    "importance",
+                    models.CharField(
+                        choices=[
+                            ("HIGH", "High"),
+                            ("MEDIUM", "Medium"),
+                            ("LOW", "Low"),
+                        ],
+                        default="LOW",
+                        max_length=20,
+                        verbose_name="Importance",
+                    ),
+                ),
+                ("title", models.CharField(max_length=150, verbose_name="Title")),
+                (
+                    "description",
+                    models.CharField(max_length=1000, verbose_name="Description"),
+                ),
+                ("date", models.DateTimeField(verbose_name="Date")),
+                ("created_at", models.DateTimeField(auto_now=True)),
+                (
+                    "client",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="timeline_items",
+                        to="ProjectManagementApp.client",
+                        verbose_name="Clients",
+                    ),
+                ),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="client_timeline_items",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Owner",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Resume',
+            name="Resume",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False, unique=True, verbose_name='Resume ID')),
-                ('name', models.CharField(blank=True, default='', max_length=150, verbose_name='Name and Surname')),
-                ('position', models.CharField(blank=True, default='', max_length=250, verbose_name='Position')),
-                ('description', models.TextField(blank=True, default='', verbose_name='Description')),
-                ('languages', models.JSONField(blank=True, default={}, verbose_name='Languages')),
-                ('skills', models.JSONField(blank=True, default={}, verbose_name='Skills')),
-                ('education', models.JSONField(blank=True, default={}, verbose_name='Education')),
-                ('work_experience', models.JSONField(blank=True, default={}, verbose_name='Work Experience')),
-                ('certificates', models.JSONField(blank=True, default={}, verbose_name='Certificates')),
-                ('achievements', models.JSONField(blank=True, default={}, verbose_name='Achievements')),
-                ('personal_projects', models.JSONField(blank=True, default={}, verbose_name='Personal Projects')),
-                ('contact_info', models.JSONField(blank=True, default={}, verbose_name='Contact Info')),
-                ('owner', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='user_resume', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                        verbose_name="Resume ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        blank=True,
+                        default="",
+                        max_length=150,
+                        verbose_name="Name and Surname",
+                    ),
+                ),
+                (
+                    "position",
+                    models.CharField(
+                        blank=True, default="", max_length=250, verbose_name="Position"
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(
+                        blank=True, default="", verbose_name="Description"
+                    ),
+                ),
+                (
+                    "languages",
+                    models.JSONField(blank=True, default={}, verbose_name="Languages"),
+                ),
+                (
+                    "skills",
+                    models.JSONField(blank=True, default={}, verbose_name="Skills"),
+                ),
+                (
+                    "education",
+                    models.JSONField(blank=True, default={}, verbose_name="Education"),
+                ),
+                (
+                    "work_experience",
+                    models.JSONField(
+                        blank=True, default={}, verbose_name="Work Experience"
+                    ),
+                ),
+                (
+                    "certificates",
+                    models.JSONField(
+                        blank=True, default={}, verbose_name="Certificates"
+                    ),
+                ),
+                (
+                    "achievements",
+                    models.JSONField(
+                        blank=True, default={}, verbose_name="Achievements"
+                    ),
+                ),
+                (
+                    "personal_projects",
+                    models.JSONField(
+                        blank=True, default={}, verbose_name="Personal Projects"
+                    ),
+                ),
+                (
+                    "contact_info",
+                    models.JSONField(
+                        blank=True, default={}, verbose_name="Contact Info"
+                    ),
+                ),
+                (
+                    "owner",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="user_resume",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ProjectPosts',
+            name="ProjectPosts",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False, unique=True, verbose_name='Post ID')),
-                ('content', models.TextField(max_length=1000, verbose_name='Post Content')),
-                ('type', models.CharField(choices=[('BUG', 'Bug'), ('QUESTION', 'Question'), ('NOTE', 'Note')], max_length=20, verbose_name='Post Type')),
-                ('created_at', models.DateTimeField(auto_now=True, verbose_name='Created At')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='post_owner', to=settings.AUTH_USER_MODEL, verbose_name='Post Owner')),
-                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='post_project', to='ProjectManagementApp.project', verbose_name='Post Project')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                        verbose_name="Post ID",
+                    ),
+                ),
+                (
+                    "content",
+                    models.TextField(max_length=1000, verbose_name="Post Content"),
+                ),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[
+                            ("BUG", "Bug"),
+                            ("QUESTION", "Question"),
+                            ("NOTE", "Note"),
+                        ],
+                        max_length=20,
+                        verbose_name="Post Type",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Created At"),
+                ),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="post_owner",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Post Owner",
+                    ),
+                ),
+                (
+                    "project",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="post_project",
+                        to="ProjectManagementApp.project",
+                        verbose_name="Post Project",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ProjectInvites',
+            name="ProjectInvites",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False, unique=True, verbose_name='Invite ID')),
-                ('email', models.CharField(max_length=150, verbose_name='Invite Email')),
-                ('created_at', models.DateTimeField(auto_now=True, verbose_name='Created At')),
-                ('expire_at', models.DateTimeField(default=datetime.datetime(2021, 5, 17, 23, 56, 32, 867555), verbose_name='Created At')),
-                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='invites', to='ProjectManagementApp.project', verbose_name='Project Invite')),
-                ('sender', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sender', to=settings.AUTH_USER_MODEL, verbose_name='Invite Sender')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                        verbose_name="Invite ID",
+                    ),
+                ),
+                (
+                    "email",
+                    models.CharField(max_length=150, verbose_name="Invite Email"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Created At"),
+                ),
+                (
+                    "expire_at",
+                    models.DateTimeField(
+                        default=datetime.datetime(2021, 5, 17, 23, 56, 32, 867555),
+                        verbose_name="Created At",
+                    ),
+                ),
+                (
+                    "project",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="invites",
+                        to="ProjectManagementApp.project",
+                        verbose_name="Project Invite",
+                    ),
+                ),
+                (
+                    "sender",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sender",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Invite Sender",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='PostComments',
+            name="PostComments",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False, unique=True, verbose_name='Comment ID')),
-                ('content', models.TextField(max_length=1000, verbose_name='Comment Content')),
-                ('created_at', models.DateTimeField(auto_now=True, verbose_name='Created At')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comment_owner', to=settings.AUTH_USER_MODEL, verbose_name='Owner')),
-                ('post', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comment_post', to='ProjectManagementApp.projectposts', verbose_name='Comment Post')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                        verbose_name="Comment ID",
+                    ),
+                ),
+                (
+                    "content",
+                    models.TextField(max_length=1000, verbose_name="Comment Content"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Created At"),
+                ),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="comment_owner",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Owner",
+                    ),
+                ),
+                (
+                    "post",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="comment_post",
+                        to="ProjectManagementApp.projectposts",
+                        verbose_name="Comment Post",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Invoice',
+            name="Invoice",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False, unique=True, verbose_name='Invoice ID')),
-                ('number', models.IntegerField(default=1, verbose_name='Invoice Number')),
-                ('due_date', models.DateTimeField(null=True, verbose_name='Due Date')),
-                ('items', models.JSONField(verbose_name='Invoice Items')),
-                ('total', models.FloatField(verbose_name='Invoice Total')),
-                ('is_paid', models.BooleanField(default=False, verbose_name='Is Invoice Paid')),
-                ('note', models.TextField(default='', verbose_name='Invoice Note')),
-                ('terms', models.TextField(default='', verbose_name='Invoice Terms')),
-                ('created_at', models.DateTimeField(auto_now=True, verbose_name='Created At')),
-                ('client', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='ProjectManagementApp.client', verbose_name='Client')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Owner')),
-                ('project', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='ProjectManagementApp.project', verbose_name='Project')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                        verbose_name="Invoice ID",
+                    ),
+                ),
+                (
+                    "number",
+                    models.IntegerField(default=1, verbose_name="Invoice Number"),
+                ),
+                ("due_date", models.DateTimeField(null=True, verbose_name="Due Date")),
+                ("items", models.JSONField(verbose_name="Invoice Items")),
+                ("total", models.FloatField(verbose_name="Invoice Total")),
+                (
+                    "is_paid",
+                    models.BooleanField(default=False, verbose_name="Is Invoice Paid"),
+                ),
+                ("note", models.TextField(default="", verbose_name="Invoice Note")),
+                ("terms", models.TextField(default="", verbose_name="Invoice Terms")),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Created At"),
+                ),
+                (
+                    "client",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="ProjectManagementApp.client",
+                        verbose_name="Client",
+                    ),
+                ),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Owner",
+                    ),
+                ),
+                (
+                    "project",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="ProjectManagementApp.project",
+                        verbose_name="Project",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ClientAddress',
+            name="ClientAddress",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False, unique=True, verbose_name='Client Address ID')),
-                ('country', models.CharField(blank=True, max_length=150, verbose_name='Country')),
-                ('state', models.CharField(blank=True, max_length=80, verbose_name='State')),
-                ('city', models.CharField(blank=True, max_length=80, verbose_name='City')),
-                ('zip_code', models.CharField(blank=True, max_length=30, verbose_name='Zip Code')),
-                ('client', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='client_address', to='ProjectManagementApp.client', verbose_name='Client')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                        verbose_name="Client Address ID",
+                    ),
+                ),
+                (
+                    "country",
+                    models.CharField(
+                        blank=True, max_length=150, verbose_name="Country"
+                    ),
+                ),
+                (
+                    "state",
+                    models.CharField(blank=True, max_length=80, verbose_name="State"),
+                ),
+                (
+                    "city",
+                    models.CharField(blank=True, max_length=80, verbose_name="City"),
+                ),
+                (
+                    "zip_code",
+                    models.CharField(
+                        blank=True, max_length=30, verbose_name="Zip Code"
+                    ),
+                ),
+                (
+                    "client",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="client_address",
+                        to="ProjectManagementApp.client",
+                        verbose_name="Client",
+                    ),
+                ),
             ],
         ),
         migrations.AddConstraint(
-            model_name='project',
-            constraint=models.UniqueConstraint(fields=('name', 'owner'), name='Project Name Constraint'),
+            model_name="project",
+            constraint=models.UniqueConstraint(
+                fields=("name", "owner"), name="Project Name Constraint"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='client',
-            constraint=models.UniqueConstraint(fields=('owner', 'email'), name='Client Constraint'),
+            model_name="client",
+            constraint=models.UniqueConstraint(
+                fields=("owner", "email"), name="Client Constraint"
+            ),
         ),
     ]

@@ -4,16 +4,38 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.http import JsonResponse
 from rest_framework import status
-from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView, CreateAPIView
+from rest_framework.generics import (
+    RetrieveUpdateDestroyAPIView,
+    ListCreateAPIView,
+    CreateAPIView,
+)
 from rest_framework.views import APIView
 from projectmanagement.exceptions import CustomException
 from .filters import InvoiceFilter, ClientFilter
-from .models import Client, Project, Invoice, Resume, TimelineItemClient, ProjectPosts, PostComments
+from .models import (
+    Client,
+    Project,
+    Invoice,
+    Resume,
+    TimelineItemClient,
+    ProjectPosts,
+    PostComments,
+)
 from projectmanagement.paginator import CustomPaginator
-from .serializers import ResumeSerializer, TimelineItemClientSerializer, \
-    ClientRetrieveUpdateSerializer, ClientListSerializer, ClientCreateSerializer, ProjectListSerializer, \
-    ProjectRetrieveSerializer, ProjectCreateUpdateSerializer, ProjectPostSerializer, PostCommentSerializer, \
-    InvoiceSerializer, InvoiceCreateUpdateSerializer
+from .serializers import (
+    ResumeSerializer,
+    TimelineItemClientSerializer,
+    ClientRetrieveUpdateSerializer,
+    ClientListSerializer,
+    ClientCreateSerializer,
+    ProjectListSerializer,
+    ProjectRetrieveSerializer,
+    ProjectCreateUpdateSerializer,
+    ProjectPostSerializer,
+    PostCommentSerializer,
+    InvoiceSerializer,
+    InvoiceCreateUpdateSerializer,
+)
 from .services import accept_project_invite
 from django_filters import rest_framework as filters
 
@@ -26,6 +48,7 @@ class ClientListCreateView(ListCreateAPIView):
     M2M fields in the "Client" model.
     @permissions - Only the owner can do CRUD operations
     """
+
     pagination_class = CustomPaginator
     filter_class = ClientFilter
 
@@ -45,12 +68,13 @@ class ClientRetrieveView(RetrieveUpdateDestroyAPIView):
     There are no M2M fields in the "Client" model.
     @permissions - Only the owner can do CRUD operations
     """
+
     serializer_class = ClientRetrieveUpdateSerializer
-    lookup_field = 'id'
+    lookup_field = "id"
 
     def get_object(self):
         try:
-            return Client.objects.get(owner=self.request.user, id=self.kwargs['id'])
+            return Client.objects.get(owner=self.request.user, id=self.kwargs["id"])
         except Client.DoesNotExist:
             raise CustomException(404, "The client does not exist.")
         except ValidationError:
@@ -63,6 +87,7 @@ class ProjectListCreateView(ListCreateAPIView):
     @permissions - Only the owner can do CUD operations, other users can list the projects
         they're included in
     """
+
     pagination_class = CustomPaginator
 
     def get_serializer_class(self):
@@ -72,7 +97,9 @@ class ProjectListCreateView(ListCreateAPIView):
             return ProjectCreateUpdateSerializer
 
     def get_queryset(self):
-        return Project.objects.filter(Q(owner=self.request.user) | Q(users=self.request.user))
+        return Project.objects.filter(
+            Q(owner=self.request.user) | Q(users=self.request.user)
+        )
 
 
 class ProjectRetrieveView(RetrieveUpdateDestroyAPIView):
@@ -81,7 +108,8 @@ class ProjectRetrieveView(RetrieveUpdateDestroyAPIView):
     @permissions - Only the owner can do CUD operations, other users can retrieve the project
         if they're included in it
     """
-    lookup_field = 'id'
+
+    lookup_field = "id"
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -93,10 +121,13 @@ class ProjectRetrieveView(RetrieveUpdateDestroyAPIView):
         try:
             if self.request.method == "GET":
                 return Project.objects.get(
-                    Q(owner=self.request.user) | Q(users=self.request.user), id=self.kwargs['id']
+                    Q(owner=self.request.user) | Q(users=self.request.user),
+                    id=self.kwargs["id"],
                 )
             else:
-                return Project.objects.get(owner=self.request.user, id=self.kwargs['id'])
+                return Project.objects.get(
+                    owner=self.request.user, id=self.kwargs["id"]
+                )
         except Project.DoesNotExist:
             raise CustomException(404, "The project does not exist.")
         except ValidationError:
@@ -110,7 +141,7 @@ class ProjectInviteView(APIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            response = accept_project_invite(self.request.user, self.kwargs['id'])
+            response = accept_project_invite(self.request.user, self.kwargs["id"])
             return JsonResponse(data=response, status=status.HTTP_200_OK)
         except ValidationError:
             raise CustomException(400, "The UUID is not correct.")
@@ -122,14 +153,16 @@ class ProjectPostsListCreateView(ListCreateAPIView):
     @permissions - Only the owner can do CUD operations, other users can list the posts. The user can create
          a post for a project only if he is the owner, or one of the users.
     """
+
     serializer_class = ProjectPostSerializer
     pagination_class = CustomPaginator
 
     def get_queryset(self):
         try:
             return ProjectPosts.objects.filter(
-                Q(project__owner=self.request.user) | Q(project__users=self.request.user),
-                project=self.kwargs['project_id']
+                Q(project__owner=self.request.user)
+                | Q(project__users=self.request.user),
+                project=self.kwargs["project_id"],
             )
         except ValidationError:
             raise CustomException(400, "The UUID is not correct.")
@@ -137,7 +170,8 @@ class ProjectPostsListCreateView(ListCreateAPIView):
     def perform_create(self, serializer):
         try:
             project = Project.objects.get(
-                Q(owner=self.request.user) | Q(users=self.request.user), id=self.kwargs['project_id']
+                Q(owner=self.request.user) | Q(users=self.request.user),
+                id=self.kwargs["project_id"],
             )
             return serializer.save(project=project, owner=self.request.user)
         except Project.DoesNotExist:
@@ -151,12 +185,15 @@ class ProjectPostsRetrieveView(RetrieveUpdateDestroyAPIView):
     Retrieve, update or delete a project post
     @permissions - Only the owner can do CUD operations.
     """
+
     serializer_class = ProjectPostSerializer
-    lookup_field = 'id'
+    lookup_field = "id"
 
     def get_object(self):
         try:
-            return ProjectPosts.objects.get(owner=self.request.user, id=self.kwargs['id'])
+            return ProjectPosts.objects.get(
+                owner=self.request.user, id=self.kwargs["id"]
+            )
         except Project.DoesNotExist:
             raise CustomException(404, "The post does not exist.")
         except ValidationError:
@@ -167,20 +204,23 @@ class PostCommentListCreateView(ListCreateAPIView):
     """
     Get all of the comment for a post or create a new comment
     """
+
     serializer_class = PostCommentSerializer
     pagination_class = CustomPaginator
 
     def get_queryset(self):
         return PostComments.objects.filter(
-            Q(post__project__owner=self.request.user) | Q(post__project__users=self.request.user),
-            post=self.kwargs['post_id']
+            Q(post__project__owner=self.request.user)
+            | Q(post__project__users=self.request.user),
+            post=self.kwargs["post_id"],
         )
 
     def perform_create(self, serializer):
         try:
             post = ProjectPosts.objects.get(
-                Q(post__project__owner=self.request.user) | Q(post__project__users=self.request.user),
-                id=self.kwargs['post_id']
+                Q(post__project__owner=self.request.user)
+                | Q(post__project__users=self.request.user),
+                id=self.kwargs["post_id"],
             )
             return serializer.save(post=post, owner=self.request.user)
         except ProjectPosts.DoesNotExist:
@@ -193,14 +233,14 @@ class PostCommentsRetrieveView(RetrieveUpdateDestroyAPIView):
     """
     Retrieve, update or delete a project post
     """
+
     serializer_class = PostCommentSerializer
-    lookup_field = 'id'
+    lookup_field = "id"
 
     def get_object(self):
         try:
             return PostComments.objects.get(
-                owner=self.request.user,
-                id=self.kwargs['id']
+                owner=self.request.user, id=self.kwargs["id"]
             )
         except ProjectPosts.DoesNotExist:
             raise CustomException(404, "The comment does not exist.")
@@ -212,13 +252,14 @@ class InvoiceListCreateView(ListCreateAPIView):
     """
     Get all invoices or create a new one
     """
+
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = InvoiceFilter
     pagination_class = CustomPaginator
     serializer_class = InvoiceSerializer
 
     def get_serializer_class(self):
-        if(self.request.method == 'POST'):
+        if self.request.method == "POST":
             return InvoiceCreateSerializer
         return InvoiceSerializer
 
@@ -228,19 +269,16 @@ class InvoiceListCreateView(ListCreateAPIView):
 
 class InvoiceRetrieveView(RetrieveUpdateDestroyAPIView):
     pagination_class = CustomPaginator
-    lookup_field = 'id'
+    lookup_field = "id"
 
     def get_serializer_class(self):
-        if self.request.method in ['PUT', 'PATCH']:
+        if self.request.method in ["PUT", "PATCH"]:
             return InvoiceCreateUpdateSerializer
         return InvoiceSerializer
 
     def get_object(self):
         try:
-            return Invoice.objects.get(
-                owner=self.request.user,
-                id=self.kwargs['id']
-            )
+            return Invoice.objects.get(owner=self.request.user, id=self.kwargs["id"])
         except Invoice.DoesNotExist:
             raise CustomException(404, "The invoice does not exist.")
         except ValidationError:
@@ -260,20 +298,21 @@ class TimelineItemListCreateView(ListCreateAPIView):
 
     def get_queryset(self):
         try:
-            return TimelineItemClient.objects.filter(owner=self.request.user, client=self.kwargs['client_id'])
+            return TimelineItemClient.objects.filter(
+                owner=self.request.user, client=self.kwargs["client_id"]
+            )
         except ValidationError:
             raise CustomException(400, "The UUID is not correct.")
 
 
 class TimelineItemRetrieveView(RetrieveUpdateDestroyAPIView):
     serializer_class = TimelineItemClientSerializer
-    lookup_field = 'id'
+    lookup_field = "id"
 
     def get_object(self):
         try:
             return TimelineItemClient.objects.get(
-                owner=self.request.user,
-                id=self.kwargs['id']
+                owner=self.request.user, id=self.kwargs["id"]
             )
         except TimelineItemClient.DoesNotExist:
             raise CustomException(404, "The timeline item does not exist.")
